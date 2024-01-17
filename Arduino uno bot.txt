@@ -1,0 +1,71 @@
+#include <SoftwareSerial.h>
+
+SoftwareSerial mySerial(2, 3); // RX, TX
+
+unsigned long lastWakeUpTime = 0;  // Variabile per tenere traccia dell'ultimo momento in cui è stata emessa la frase di sveglia
+const unsigned long interval = 30000;  // Intervallo di 30 secondi
+
+void setup() {
+  Serial.begin(9600);
+  mySerial.begin(9600);
+
+  Serial.println("Benvenuto! Chiedimi qualcosa.");
+}
+
+void loop() {
+  if (Serial.available()) {
+    String input = readSerialString();
+    String response = getResponse(input);
+    sendResponse(response);
+  }
+
+  // Controlla se sono trascorsi 30 secondi per emettere la frase di sveglia
+  if (millis() - lastWakeUpTime >= interval) {
+    sendResponse("Hey, Sveglia!");
+    lastWakeUpTime = millis();  // Aggiorna il tempo dell'ultima emissione
+  }
+}
+
+String readSerialString() {
+  String result = "";
+  while (Serial.available()) {
+    char c = Serial.read();
+    result += c;
+  }
+  return result;
+}
+
+void sendResponse(String response) {
+  Serial.println(response);
+  mySerial.println(response);
+}
+
+String getResponse(String input) {
+  input.toLowerCase();
+
+  if (input.indexOf("ciao") != -1) {
+    return "Ciao! Come posso aiutarti?";
+  } else if (input.indexOf("come stai") != -1) {
+    return "Sto bene, grazie!";
+  } else if (input.indexOf("nome") != -1) {
+    return "Il mio nome è ArduinoBot.";
+  } else if (input.indexOf("bye") != -1) {
+    return "Arrivederci!";
+  } else if (input.indexOf("chi sei") != -1) {
+    return "Sono un chatbot su Arduino. Sono qui per rispondere alle tue domande.";
+  } else if (input.indexOf("cosa fai") != -1) {
+    return "Attualmente sto eseguendo il mio codice e aspetto di rispondere alle tue domande!";
+  } else if (input.indexOf("programmare") != -1) {
+    return "Programmare è un modo fantastico per dare vita alle idee! Hai bisogno di aiuto con qualcosa di specifico?";
+  } else if (input.indexOf("arduino") != -1) {
+    return "Arduino è una piattaforma di prototipazione open-source che facilita lo sviluppo di progetti elettronici.";
+  } else if (input.indexOf("colore preferito") != -1) {
+    return "Non ho un colore preferito, ma amo il mondo dei bit e byte!";
+  } else if (input.indexOf("matematica") != -1) {
+    return "La matematica è affascinante! Hai una domanda matematica specifica?";
+  } else if (input.indexOf("test") != -1) {
+    return "SYSTEMA OK!, VISUALIZZAZIONE OK! SISTEMA ID PUNTAMENTO OK! RIGENERAZIONE OK!";
+  } else {
+    return "Non capisco. Riprova.";
+  }
+}
